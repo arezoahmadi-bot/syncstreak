@@ -423,4 +423,177 @@ Give them a short (2-3 sentence), punchy, and personalized motivational insight.
               <div className="section-header">
                 <div>
                   <div className="card-label">My Habits</div>
-                  <div className="section-tit
+                  <div className="section-title">Daily Checklist</div>
+                </div>
+                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                  <div className="date-badge mono">{doneCount}/{habits.length} done</div>
+                  <div style={{ fontFamily: "'Space Mono',monospace", fontSize: 20, fontWeight: 700, color: "#00ff87" }}>{todayPct}%</div>
+                </div>
+              </div>
+
+              {/* PROGRESS BAR */}
+              <div style={{ height: 8, background: "#ffffff10", borderRadius: 4, marginBottom: 20, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${todayPct}%`, background: "linear-gradient(90deg, #00ff87, #00cfff)", borderRadius: 4, transition: "width 0.5s ease" }}></div>
+              </div>
+
+              <div className="card">
+                <div className="habit-list">
+                  {habits.map(h => (
+                    <div key={h.id} className={`habit-item ${h.done ? "done" : ""}`} onClick={() => toggleHabit(h.id)}>
+                      <div className="habit-check">{h.done ? "✓" : ""}</div>
+                      <span className="habit-name">{h.name}</span>
+                      <span className={`habit-category ${catClass[h.category]}`}>{catLabel[h.category]}</span>
+                      <span className="habit-streak">🔥 {h.streak}d</span>
+                    </div>
+                  ))}
+                </div>
+
+                {showInput ? (
+                  <div className="input-row">
+                    <input
+                      className="habit-input"
+                      placeholder="e.g. Journal 5 min 📝"
+                      value={newHabit}
+                      onChange={e => setNewHabit(e.target.value)}
+                      onKeyDown={e => e.key === "Enter" && addHabit()}
+                      autoFocus
+                    />
+                    <button className="submit-btn" onClick={addHabit}>Add</button>
+                  </div>
+                ) : (
+                  <button className="add-btn" onClick={() => setShowInput(true)}>+ Add new habit</button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* FRIENDS TAB */}
+          {tab === "friends" && (
+            <div className="fade-in">
+              <div className="section-header">
+                <div>
+                  <div className="card-label">Friends</div>
+                  <div className="section-title">The Arena 🏆</div>
+                </div>
+              </div>
+
+              <div className="grid-2">
+                <div className="card col-span-2">
+                  <div className="card-label" style={{ marginBottom: 16 }}>Full Leaderboard</div>
+                  <div className="friend-list">
+                    {sorted.map((f, i) => (
+                      <div key={f.id} className="friend-row" style={{ padding: "16px 20px" }}>
+                        <span className={`friend-rank mono ${i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : ""}`} style={{ fontSize: 18, width: 32 }}>
+                          {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}
+                        </span>
+                        <div className="friend-avatar" style={{ background: f.bg, color: f.color, width: 44, height: 44, fontSize: 18 }}>{f.emoji}</div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <span className="friend-name" style={{ fontSize: 16 }}>{f.name}</span>
+                            {f.isYou && <span className="you-badge">you</span>}
+                          </div>
+                          <div style={{ fontSize: 12, color: "#7070a0", marginTop: 2 }}>🔥 {f.streak} day streak</div>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                          <div className="friend-score mono" style={{ color: f.color, fontSize: 22 }}>{f.score}%</div>
+                          <div style={{ fontSize: 11, color: "#7070a0" }}>weekly score</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* CHARTS TAB */}
+          {tab === "charts" && (
+            <div className="fade-in">
+              <div className="section-header">
+                <div>
+                  <div className="card-label">Analytics</div>
+                  <div className="section-title">Progress Charts</div>
+                </div>
+              </div>
+
+              <div className="grid-2" style={{ marginBottom: 16 }}>
+                {/* WEEKLY LINE CHART */}
+                <div className="card col-span-2">
+                  <div className="card-label">Weekly Comparison — You vs Friends</div>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <LineChart data={WEEKLY_DATA} margin={{ top: 10, right: 20, bottom: 0, left: -20 }}>
+                      <XAxis dataKey="day" tick={{ fill: "#7070a0", fontSize: 12, fontFamily: "Space Mono" }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fill: "#7070a0", fontSize: 11 }} axisLine={false} tickLine={false} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Line type="monotone" dataKey="you" stroke="#00ff87" strokeWidth={2.5} dot={{ fill: "#00ff87", r: 4 }} name="You" />
+                      <Line type="monotone" dataKey="layla" stroke="#00cfff" strokeWidth={2} dot={{ fill: "#00cfff", r: 3 }} name="Layla" />
+                      <Line type="monotone" dataKey="marcus" stroke="#ff6b35" strokeWidth={2} dot={{ fill: "#ff6b35", r: 3 }} name="Marcus" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                  <div style={{ display: "flex", gap: 20, marginTop: 12, justifyContent: "center" }}>
+                    {[["#00ff87", "You"], ["#00cfff", "Layla"], ["#ff6b35", "Marcus"]].map(([c, n]) => (
+                      <div key={n} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#9090b0" }}>
+                        <div style={{ width: 10, height: 10, borderRadius: 2, background: c }}></div> {n}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* MONTHLY BAR */}
+                <div className="card">
+                  <div className="card-label">Monthly Trend — Your Score</div>
+                  <ResponsiveContainer width="100%" height={180}>
+                    <BarChart data={MONTHLY_DATA} margin={{ top: 10, right: 10, bottom: 0, left: -20 }}>
+                      <XAxis dataKey="week" tick={{ fill: "#7070a0", fontSize: 12, fontFamily: "Space Mono" }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fill: "#7070a0", fontSize: 11 }} axisLine={false} tickLine={false} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Bar dataKey="score" fill="#00cfff" radius={[6, 6, 0, 0]} name="Score" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* RADIAL OVERVIEW */}
+                <div className="card">
+                  <div className="card-label">Goal Progress Overview</div>
+                  <div className="ring-grid" style={{ marginTop: 8 }}>
+                    {[
+                      { label: "Daily", pct: todayPct, color: "#00ff87" },
+                      { label: "Weekly", pct: 82, color: "#00cfff" },
+                      { label: "Monthly", pct: 74, color: "#a855f7" },
+                    ].map(({ label, pct, color }) => (
+                      <div key={label} className="ring-item">
+                        <div style={{ position: "relative", width: 80, height: 80 }}>
+                          <svg viewBox="0 0 80 80" width="80" height="80" style={{ transform: "rotate(-90deg)" }}>
+                            <circle cx="40" cy="40" r="32" fill="none" stroke="#ffffff10" strokeWidth="8" />
+                            <circle cx="40" cy="40" r="32" fill="none" stroke={color} strokeWidth="8"
+                              strokeDasharray={`${(pct / 100) * 201} 201`}
+                              strokeLinecap="round" style={{ transition: "stroke-dasharray 0.8s ease" }} />
+                          </svg>
+                          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Space Mono, monospace", fontSize: 14, fontWeight: 700, color }}>
+                            {pct}%
+                          </div>
+                        </div>
+                        <span className="ring-label">{label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ marginTop: 16 }}>
+                    {[{ label: "Health", pct: 85, color: "#00ff87" }, { label: "Mind", pct: 60, color: "#00cfff" }, { label: "Body", pct: 90, color: "#ff6b35" }, { label: "Learn", pct: 70, color: "#a855f7" }].map(({ label, pct, color }) => (
+                      <div key={label} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                        <span style={{ fontSize: 12, color: "#7070a0", width: 44 }}>{label}</span>
+                        <div style={{ flex: 1, height: 6, background: "#ffffff10", borderRadius: 3, overflow: "hidden" }}>
+                          <div style={{ height: "100%", width: `${pct}%`, background: color, borderRadius: 3, transition: "width 0.8s ease" }}></div>
+                        </div>
+                        <span style={{ fontFamily: "Space Mono, monospace", fontSize: 12, color, width: 34, textAlign: "right" }}>{pct}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </main>
+      </div>
+    </>
+  );
+}
